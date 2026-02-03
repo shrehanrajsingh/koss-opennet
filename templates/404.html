@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}404 Not Found - OpenNet{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px;">
+    <!-- Large 404 Icon -->
+    <div style="margin-bottom: 24px;">
+        <svg viewBox="0 0 24 24" width="120" height="120" fill="var(--accent-blue)" style="opacity: 0.6;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+    </div>
+    
+    <!-- Error Message -->
+    <h1 style="font-size: 72px; font-weight: 900; color: var(--text-primary); margin: 0; line-height: 1;">404</h1>
+    <h2 style="font-size: 24px; color: var(--text-primary); margin: 16px 0 8px 0; font-weight: bold;">Page not found</h2>
+    <p style="color: var(--text-secondary); font-size: 16px; max-width: 400px; line-height: 1.5; margin-bottom: 32px;">
+        Hmm...this page doesn't exist. Try searching for something else, or go back to the home page.
+    </p>
+    
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+        <a href="{{ url_for('posts.feed') }}" class="mini-post-btn" style="text-decoration: none; padding: 12px 24px; font-size: 16px;">
+            Go to Home
+        </a>
+        <a href="{{ url_for('search.search') }}" style="padding: 12px 24px; border: 1px solid var(--border-color); border-radius: 9999px; color: var(--text-primary); text-decoration: none; font-weight: bold; font-size: 16px; transition: background 0.2s;">
+            Search
+        </a>
+    </div>
+</div>
+{% endblock %}

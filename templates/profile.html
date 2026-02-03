@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.username }} - OpenNet{% endblock %}
+
+{% block content %}
+<div class="view-header">
+    <div class="header-title">Profile</div>
+</div>
+
+<!-- Profile Banner/Avatar Area -->
+<div style="position: relative;">
+    <!-- Cover Photo (placeholder gradient) -->
+    <div style="height: 150px; background: linear-gradient(135deg, #1d9bf0 0%, #0a3d62 100%);"></div>
+    
+    <!-- Avatar -->
+    <div style="position: absolute; bottom: -60px; left: 16px;">
+        <img src="{{ url_for('upload.serve_upload', filename=user.profile_pic) }}" 
+             alt="Profile" 
+             style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg-primary); object-fit: cover; background: #333;"
+             onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+    </div>
+    
+    <!-- Edit Button / Follow Button -->
+    <div style="position: absolute; bottom: -50px; right: 16px; display: flex; gap: 10px;">
+        {% if is_own_profile %}
+        <a href="{{ url_for('profile.edit_profile') }}" 
+           style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 9999px; color: var(--text-primary); text-decoration: none; font-weight: bold; font-size: 14px;">
+            Edit profile
+        </a>
+        {% elif current_user %}
+            {% if is_following %}
+            <form method="POST" action="{{ url_for('social.unfollow_user', user_id=user.id) }}">
+                <button type="submit" style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 9999px; background: transparent; color: var(--text-primary); font-weight: bold; font-size: 14px; cursor: pointer;">
+                    Following
+                </button>
+            </form>
+            {% elif has_pending_request %}
+            <button disabled style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 9999px; background: transparent; color: var(--text-secondary); font-weight: bold; font-size: 14px; cursor: not-allowed;">
+                Requested
+            </button>
+            {% else %}
+            <form method="POST" action="{{ url_for('social.follow_user', user_id=user.id) }}">
+                <button type="submit" class="mini-post-btn">
+                    {% if user.is_private %}Request{% else %}Follow{% endif %}
+                </button>
+            </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- Profile Info -->
+<div style="padding: 70px 16px 16px 16px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <h1 style="font-size: 20px; font-weight: bold; color: var(--text-primary);">{{ user.username }}</h1>
+        {% if user.is_private %}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-secondary)" title="Private Account"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+        {% endif %}
+    </div>
+    <p style="color: var(--text-secondary); font-size: 15px;">@{{ user.username }}</p>
+    
+    <!-- Bio -->
+    <p style="color: var(--text-primary); margin-top: 12px; font-size: 15px; line-height: 1.5;">{{ user.bio|safe }}</p>
+    
+    <!-- Details -->
+    <div style="display: flex; gap: 16px; margin-top: 12px; color: var(--text-secondary); font-size: 14px; flex-wrap: wrap;">
+        <span><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg> {{ user.email }}</span>
+        <span><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg> Joined {{ user.created_at.split()[0] if user.created_at else 'recently' }}</span>
+        {% if user.role == 'admin' %}
+        <span style="color: var(--accent-blue);"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> Admin</span>
+        {% endif %}
+    </div>
+    
+    <!-- Stats -->
+    <div style="display: flex; gap: 20px; margin-top: 12px;">
+        <span style="font-size: 14px;"><strong style="color: var(--text-primary);">{{ following_count }}</strong> <span style="color: var(--text-secondary);">Following</span></span>
+        <span style="font-size: 14px;"><strong style="color: var(--text-primary);">{{ follower_count }}</strong> <span style="color: var(--text-secondary);">Followers</span></span>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="feed-tabs" style="border-bottom: 1px solid var(--border-color);">
+    <div class="tab active" onclick="switchTab(event, 'posts-tab')">Posts</div>
+    <div class="tab" onclick="switchTab(event, 'retweets-tab')">Retweets</div>
+    <div class="tab" onclick="switchTab(event, 'replies-tab')">Replies</div>
+    <div class="tab" onclick="switchTab(event, 'likes-tab')">Likes</div>
+</div>
+
+<!-- Tab Content: Posts -->
+<div id="posts-tab" class="tab-content" style="display: block;">
+    {% for post in posts %}
+        {% include 'components/post_item.html' %}
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+        <p>No posts yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Tab Content: Retweets -->
+<div id="retweets-tab" class="tab-content" style="display: none;">
+    {% for post in retweets %}
+        <div style="padding: 8px 16px; font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+            <span>You Retweeted</span>
+        </div>
+        {% include 'components/post_item.html' %}
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+        <p>No retweets yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Tab Content: Replies -->
+<div id="replies-tab" class="tab-content" style="display: none;">
+    {% for reply in replies %}
+    <div class="post" style="display: flex; flex-direction: column; padding-top: 12px;">
+        <div style="margin-left: 0px; margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">
+            Replying to <a href="{{ url_for('profile.view_profile', id=reply.post_author_id) }}" style="color: var(--accent-blue); text-decoration: none;">@{{ reply.post_author_username }}</a>
+        </div>
+        
+        <div style="display: flex; gap: 12px;">
+            <div class="post-avatar" style="margin: 0;">
+                <a href="{{ url_for('profile.view_profile', id=user.id) }}">
+                    <img src="{{ url_for('upload.serve_upload', filename=user.profile_pic) }}" 
+                         class="create-avatar"
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+                </a>
+            </div>
+            
+            <div class="post-content" style="padding: 0;">
+                <div class="post-header-line">
+                    <div class="user-meta">
+                        <span class="display-name">{{ user.username }}</span>
+                        {% if user.role == 'admin' %}
+                        <svg class="verified-badge" viewBox="0 0 24 24" fill="currentColor"><path d="M23 12l-2.44-2.71.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.61 6.71 4.79 3.1 5.61l.34 3.68L1 12l2.44 2.71-.34 3.68 3.61.82 1.89 3.18L12 21l3.4 1.39 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 6zm0 0zM10.09 16.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87L17.42 9.4l-7.33 7.32z"/></svg>
+                        {% endif %}
+                        <span class="username">@{{ user.username }}</span>
+                        <span class="time">· {{ reply.comment_created_at.split()[1][:5] if reply.comment_created_at else '' }}</span>
+                    </div>
+                </div>
+                
+                <div class="post-text">{{ reply.comment_content|safe }}</div>
+                
+                <a href="{{ url_for('posts.view_post', post_id=reply.post_id) }}" style="display: block; margin-top: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; text-decoration: none; color: inherit;">
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+                        <img src="{{ url_for('upload.serve_upload', filename=reply.post_author_pic) }}" 
+                             style="width: 20px; height: 20px; border-radius: 50%;"
+                             onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+                        <span style="font-weight: bold; font-size: 14px;">{{ reply.post_author_username }}</span>
+                        <span style="font-size: 14px; color: var(--text-secondary);">· {{ reply.post_created_at.split()[0] if reply.post_created_at else '' }}</span>
+                    </div>
+                    <div style="font-size: 14px; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ reply.post_content|safe }}
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+        <p>No replies yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Tab Content: Likes -->
+<div id="likes-tab" class="tab-content" style="display: none;">
+    {% for post in liked_posts_list %}
+        {% include 'components/post_item.html' %}
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+        <p>No liked posts yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function switchTab(event, tabId) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabId).style.display = 'block';
+    
+    // Add active class to clicked tab
+    event.currentTarget.classList.add('active');
+}
+</script>
+{% endblock %}

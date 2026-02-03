@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% block title %}Chat with {{ other_user.username }} - OpenNet{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <a href="{{ url_for('messages.inbox') }}" class="back-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </a>
+        <img src="{{ url_for('upload.serve_upload', filename=other_user.profile_pic) }}" 
+             class="chat-avatar"
+             onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+        <div class="chat-user-info">
+            <span class="chat-username">{{ other_user.username }}</span>
+            <span class="chat-status" id="typing-indicator" style="display: none;">typing...</span>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container" id="messages-container">
+        {% for msg in messages %}
+        <div class="message {% if msg.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+            <div class="message-bubble">
+                <p class="message-text">{{ msg.content }}</p>
+                <span class="message-time">{{ msg.created_at.split()[1][:5] if msg.created_at and ' ' in msg.created_at else msg.created_at }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Message Input -->
+    <div class="message-input-container">
+        <form id="message-form" class="message-form">
+            <input type="text" id="message-input" placeholder="Start a new message" autocomplete="off">
+            <button type="submit" class="send-btn">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 53px);
+    background: var(--bg-primary);
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    gap: 12px;
+}
+
+.back-btn {
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: var(--hover-overlay);
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-username {
+    color: var(--text-primary);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.chat-status {
+    color: var(--accent-blue);
+    font-size: 12px;
+    font-style: italic;
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.message {
+    display: flex;
+    max-width: 70%;
+}
+
+.message.sent {
+    align-self: flex-end;
+}
+
+.message.received {
+    align-self: flex-start;
+}
+
+.message-bubble {
+    padding: 10px 14px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.message.sent .message-bubble {
+    background: var(--accent-blue);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.received .message-bubble {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-bottom-left-radius: 4px;
+}
+
+.message-text {
+    font-size: 15px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 4px;
+    display: block;
+}
+
+.message-input-container {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.message-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 8px 16px;
+}
+
+.message-form input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 15px;
+    outline: none;
+}
+
+.message-form input::placeholder {
+    color: var(--text-secondary);
+}
+
+.send-btn {
+    background: var(--accent-blue);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.send-btn:hover {
+    opacity: 0.8;
+}
+
+.send-btn svg {
+    fill: white;
+}
+</style>
+
+<!-- SocketIO Client -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+const socket = io();
+const currentUserId = {{ current_user.id }};
+const otherUserId = {{ other_user.id }};
+const messagesContainer = document.getElementById('messages-container');
+const messageForm = document.getElementById('message-form');
+const messageInput = document.getElementById('message-input');
+const typingIndicator = document.getElementById('typing-indicator');
+
+// Scroll to bottom
+function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+scrollToBottom();
+
+// Join chat room
+socket.emit('join_chat', { other_user_id: otherUserId });
+
+// Handle incoming messages
+socket.on('new_message', function(data) {
+    const isMine = data.sender_id === currentUserId;
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message ' + (isMine ? 'sent' : 'received');
+    messageDiv.innerHTML = `
+        <div class="message-bubble">
+            <p class="message-text">${escapeHtml(data.content)}</p>
+            <span class="message-time">${data.created_at}</span>
+        </div>
+    `;
+    messagesContainer.appendChild(messageDiv);
+    scrollToBottom();
+});
+
+// Handle typing indicator
+socket.on('user_typing', function(data) {
+    typingIndicator.style.display = 'block';
+});
+
+socket.on('user_stop_typing', function(data) {
+    typingIndicator.style.display = 'none';
+});
+
+// Send message
+messageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const content = messageInput.value.trim();
+    if (content) {
+        socket.emit('send_message', {
+            receiver_id: otherUserId,
+            content: content
+        });
+        messageInput.value = '';
+        socket.emit('stop_typing', { other_user_id: otherUserId });
+    }
+});
+
+// Typing indicator
+let typingTimeout;
+messageInput.addEventListener('input', function() {
+    socket.emit('typing', { other_user_id: otherUserId });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(function() {
+        socket.emit('stop_typing', { other_user_id: otherUserId });
+    }, 1000);
+});
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

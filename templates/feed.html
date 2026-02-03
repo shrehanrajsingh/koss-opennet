@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="view-header">
+    <div class="header-title">Home</div>
+    <div class="feed-tabs">
+        <div class="tab active">For you</div>
+        <div class="tab">Following</div>
+    </div>
+</div>
+
+<div class="create-post-area">
+    <img src="{{ url_for('upload.serve_upload', filename=current_user.profile_pic) }}" 
+         class="create-avatar"
+         onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+    
+    <div class="create-form">
+        <form method="POST" action="{{ url_for('posts.create_post') }}" enctype="multipart/form-data">
+            <textarea name="content" class="post-input" placeholder="What is happening?!" rows="1" required></textarea>
+            
+            <div id="image-preview-container" style="display: none; position: relative; margin-top: 10px; width: fit-content;">
+                <img id="image-preview" src="#" alt="Image preview" style="max-width: 100%; max-height: 300px; border-radius: 16px;">
+                <button type="button" onclick="removeImage()" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); border: none; border-radius: 50%; width: 30px; height: 30px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M13.414 12L19 17.586 17.586 19 12 13.414 6.414 19 5 17.586 10.586 12 5 6.414 6.414 5 12 10.586 17.586 5 19 6.414z"/></svg>
+                </button>
+            </div>
+
+            <div class="create-tools">
+                <div class="tool-icons">
+                    <!-- Image Icon -->
+                    <label for="post-image" class="tool-icon" style="cursor: pointer;">
+                        <input type="file" name="image" id="post-image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>
+                    </label>
+                    <!-- GIF Icon -->
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24"><path d="M11.5 9H13v6h-1.5zM9 9H6c-.6 0-1 .5-1 1v4c0 .5.4 1 1 1h3c.6 0 1-.5 1-1v-2H8.5v1.5h-2v-3H10V10c0-.5-.4-1-1-1zm10 1.5V9h-4.5v6H16v-2h2v-1.5h-2v-1z"/></svg>
+                    </div>
+                    <!-- Poll Icon -->
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    </div>
+                    <!-- Emoji Icon -->
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                    </div>
+                    <!-- Calendar -->
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
+                    </div>
+                    <!-- Location -->
+                    <div class="tool-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </div>
+                </div>
+                <button type="submit" class="mini-post-btn">Post</button>
+            </div>
+        </form>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        
+        reader.onload = function(e) {
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('image-preview-container').style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeImage() {
+    document.getElementById('post-image').value = "";
+    document.getElementById('image-preview-container').style.display = 'none';
+    document.getElementById('image-preview').src = "#";
+}
+</script>
+    </div>
+</div>
+
+<div id="dynamic-content"></div>
+
+{% for post in posts %}
+    {% include 'components/post_item.html' %}
+{% else %}
+<div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+    No posts yet. Be the first to post!
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    if (window.location.hash) {
+        document.getElementById('dynamic-content').innerHTML = decodeURIComponent(window.location.hash.slice(1));
+    }
+
+    // Dropdown toggle function
+    function toggleDropdown(event, element) {
+        event.stopPropagation();
+        // Close other dropdowns first
+        document.querySelectorAll('.post-dropdown').forEach(d => {
+            if (d !== element.querySelector('.post-dropdown')) {
+                d.classList.remove('show');
+            }
+        });
+        
+        const dropdown = element.querySelector('.post-dropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        document.querySelectorAll('.post-dropdown').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Messages - OpenNet{% endblock %}
+
+{% block content %}
+<div class="view-header">
+    <div class="header-title">Messages</div>
+</div>
+
+<div style="padding: 16px;">
+    <!-- Compose Message -->
+    <div class="widget-card" style="margin-bottom: 24px;">
+        <h3 style="color: var(--text-primary); margin-bottom: 16px; font-size: 18px; font-weight: bold;">New Message</h3>
+        <form method="POST" action="{{ url_for('messages.send_message') }}">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; color: var(--text-secondary); margin-bottom: 8px; font-size: 14px;">To:</label>
+                <select name="receiver_id" required style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 15px; cursor: pointer;">
+                    {% for user in users %}
+                    {% if user.id != current_user.id %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; color: var(--text-secondary); margin-bottom: 8px; font-size: 14px;">Message:</label>
+                <textarea name="content" required placeholder="Type your message..." 
+                    style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 15px; min-height: 100px; resize: vertical;"></textarea>
+            </div>
+            <button type="submit" class="mini-post-btn">Send Message</button>
+        </form>
+    </div>
+    
+    <!-- Inbox -->
+    <div>
+        <h3 style="color: var(--text-primary); margin-bottom: 16px; font-size: 18px; font-weight: bold;">Inbox</h3>
+        {% for msg in messages %}
+        <div class="post" style="padding: 16px;">
+            <div class="post-content" style="margin-left: 0; width: 100%;">
+                <div class="post-header-line">
+                    <div class="user-meta">
+                        <span class="display-name">{{ msg.sender_name }}</span>
+                        <span class="username">→ {{ msg.receiver_name }}</span>
+                    </div>
+                    <span class="time">{{ msg.created_at.split()[0] if msg.created_at else '' }}</span>
+                </div>
+                <p class="post-text" style="font-size: 15px; margin: 12px 0;">{{ msg.content|safe }}</p>
+                <a href="{{ url_for('messages.chat', user_id=msg.sender_id if msg.sender_id != current_user.id else msg.receiver_id) }}" 
+                   style="color: var(--accent-blue); font-size: 14px; text-decoration: none;">Open chat</a>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+            <p>No messages yet.</p>
+            <p style="font-size: 14px; margin-top: 8px;">Send a message to start a conversation!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

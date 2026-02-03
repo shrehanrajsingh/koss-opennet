@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - OpenNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background: white;"> <!-- Override global dark bg -->
+    
+    <div class="auth-split-screen">
+        <!-- Left Side -->
+        <div class="split-left">
+            <div class="brand-logo">
+                <div class="brand-briefcase">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/>
+                    </svg>
+                </div>
+                <span>OpenNet</span>
+            </div>
+            
+            <div class="hero-text">
+                <h1>Connecting professionals to opportunity.</h1>
+                <p>Join the world's largest professional network to build skills, share ideas, and advance your career.</p>
+            </div>
+        </div>
+        
+        <!-- Right Side -->
+        <div class="split-right">
+            <div class="auth-header">
+                <h2>Welcome back</h2>
+                <p>Please enter your details to sign in.</p>
+            </div>
+            
+            {% if error %}
+            <div class="alert alert-error" style="margin-bottom: 20px;">{{ error }}</div>
+            {% endif %}
+            
+            <div class="social-btns">
+                <button class="social-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Google_Favicon_2025.svg/250px-Google_Favicon_2025.svg.png" width="20" alt="Google">
+                    Google
+                </button>
+                <button class="social-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" width="20" alt="Apple">
+                    Apple
+                </button>
+            </div>
+            
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="auth-form-group">
+                    <label>Email or Username</label>
+                    <input type="text" name="username" class="auth-input" placeholder="name@company.com" required>
+                </div>
+                
+                <div class="auth-form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="auth-input" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="auth-actions">
+                    <label class="remember-me">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" class="forgot-pass">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="auth-submit-btn">Log In</button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

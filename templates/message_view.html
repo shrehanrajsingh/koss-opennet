@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}View Message - VulnNet{% endblock %}
+
+{% block content %}
+<div class="message-view-container">
+    <div class="message-card large">
+        <div class="message-header">
+            <span class="from"><strong>From:</strong> {{ message.sender_name }}</span>
+            <span class="to"><strong>To:</strong> {{ message.receiver_name }}</span>
+            <span class="timestamp">{{ message.created_at }}</span>
+        </div>
+        
+        <div class="message-content">
+            {{ message.content|safe }}
+        </div>
+    </div>
+    
+    {% if preview %}
+    <div class="preview-section">
+        <h3>Preview</h3>
+        <div class="preview-content">{{ preview|safe }}</div>
+    </div>
+    {% endif %}
+    
+    <a href="{{ url_for('messages.inbox') }}" class="btn btn-secondary">Back to Inbox</a>
+</div>
+{% endblock %}

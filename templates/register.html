@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - OpenNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background: white;">
+    
+    <div class="auth-split-screen">
+        <!-- Left Side -->
+        <div class="split-left">
+            <div class="brand-logo">
+                <div class="brand-briefcase">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/>
+                    </svg>
+                </div>
+                <span>OpenNet</span>
+            </div>
+            
+            <div class="hero-text">
+                <h1>Start your journey.</h1>
+                <p>Join millions of professionals today. Build your network, find your dream job.</p>
+            </div>
+        </div>
+        
+        <!-- Right Side -->
+        <div class="split-right">
+            <div class="auth-header">
+                <h2>Create Account</h2>
+                <p>Enter your details to get started.</p>
+            </div>
+            
+            {% if error %}
+            <div class="alert alert-error" style="margin-bottom: 20px;">{{ error }}</div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('auth.register') }}">
+                <div class="auth-form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" class="auth-input" placeholder="Choose a username" required>
+                </div>
+
+                <div class="auth-form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="auth-input" placeholder="name@company.com" required>
+                </div>
+                
+                <div class="auth-form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="auth-input" placeholder="Create a password" required>
+                </div>
+                
+                <button type="submit" class="auth-submit-btn">Sign Up</button>
+            </form>
+            
+            <div class="auth-footer">
+                Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<div class="post">
+    <div class="post-avatar">
+        <a href="{{ url_for('profile.view_profile', id=post.user_id) }}">
+            <img src="{{ url_for('upload.serve_upload', filename=post.profile_pic) }}" 
+                 class="create-avatar"
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+        </a>
+    </div>
+    
+    <div class="post-content">
+        <div class="post-header-line">
+            <div class="user-meta">
+                <a href="{{ url_for('profile.view_profile', id=post.user_id) }}" style="text-decoration: none; color: inherit;">
+                    <span class="display-name">{{ post.username }}</span>
+                </a>
+                {% if post.role == 'admin' %}
+                <svg class="verified-badge" viewBox="0 0 24 24" fill="currentColor"><path d="M23 12l-2.44-2.71.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.61 6.71 4.79 3.1 5.61l.34 3.68L1 12l2.44 2.71-.34 3.68 3.61.82 1.89 3.18L12 21l3.4 1.39 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 6zm0 0zM10.09 16.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87L17.42 9.4l-7.33 7.32z"/></svg>
+                {% endif %}
+                <span class="username">@{{ post.username }}</span>
+                <span class="time">· {{ post.created_at.split()[1][:5] if post.created_at else '' }}</span>
+            </div>
+            
+            {% if current_user and (post.user_id == current_user.id or current_user.role == 'admin') %}
+            <div class="more-options" onclick="toggleDropdown(event, this)">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="color: #71767b;"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                
+                <div class="post-dropdown">
+                    <form method="POST" action="{{ url_for('posts.delete_post', post_id=post.id) }}" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <svg viewBox="0 0 24 24"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="post-text">
+            {{ post.content|safe }}
+        </div>
+
+        {% if post.image_url %}
+        <div class="post-image" style="margin-top: 10px; margin-bottom: 5px;">
+            <img src="{{ url_for('upload.serve_upload', filename=post.image_url) }}" 
+                 style="max-width: 100%; border-radius: 16px; border: 1px solid var(--border-color);"
+                 onerror="this.style.display='none'">
+        </div>
+        {% endif %}
+        
+        <div class="post-actions">
+            <!-- Reply -->
+            <a href="{{ url_for('posts.view_post', post_id=post.id) }}" class="action-item" style="text-decoration: none; color: inherit;">
+                <svg viewBox="0 0 24 24" style="fill: #71767b;"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.36 2.888 6 6.335 6h2.951v-2h-2.951c-2.329 0-4.325-1.74-4.335-4.08 0-2.22 1.741-4.02 3.966-4.02h4.747c2.124.05 3.868 1.71 3.971 3.81.012.24.019.49.019.74 0 .93-.2 1.84-.738 2.65l.707.39V12.7c0-.28 0-.57-.015-.85-.148-3.34-2.881-5.96-6.321-5.85h-4.332z"/></svg>
+                <span>{{ post.comment_count }}</span>
+            </a>
+            
+            <!-- Retweet -->
+            <form method="POST" action="{{ url_for('posts.retweet_post', post_id=post.id) }}" class="inline-form">
+                <button type="submit" class="action-item" style="background: none; border: none; padding: 0; color: inherit;">
+                    {% if post.id in retweeted_posts %}
+                    <svg viewBox="0 0 24 24" style="fill: #00ba7c;"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+                    {% else %}
+                    <svg viewBox="0 0 24 24" style="fill: #71767b;"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+                    {% endif %}
+                    <span style="{% if post.id in retweeted_posts %}color: #00ba7c;{% endif %}">{{ post.retweet_count or 0 }}</span>
+                </button>
+            </form>
+            
+            <!-- Like -->
+            <form method="POST" action="{{ url_for('posts.like_post', post_id=post.id) }}" class="inline-form">
+                <button type="submit" class="action-item {% if post.id in liked_posts %}liked{% endif %}" style="background: none; border: none; padding: 0; color: inherit;">
+                    {% if post.id in liked_posts %}
+                    <svg viewBox="0 0 24 24" style="fill: #f91880;"><path d="M20.884 13.19c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
+                    {% else %}
+                    <svg viewBox="0 0 24 24" style="fill: #71767b;"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.528 5.44 7.306 5.5c-1.22.06-2.55.79-3.251 1.95-.56 1.16-.763 3.25.753 6.08 1.517 2.8 5.766 6.84 7.086 8.01.216.19.535.19.75 0 1.32-1.17 5.569-5.21 7.086-8.01 1.516-2.83 1.313-4.92.753-6.08-.701-1.16-2.031-1.89-3.251-1.95z"/></svg>
+                    {% endif %}
+                    <span style="{% if post.id in liked_posts %}color: #f91880;{% endif %}">{{ post.like_count }}</span>
+                </button>
+            </form>
+            
+            <!-- Share -->
+            <div class="action-item">
+                <svg viewBox="0 0 24 24" style="fill: #71767b;"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.12 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>
+            </div>
+        </div>
+    </div>
+</div>

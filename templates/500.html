@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Error - VulnNet{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>500</h1>
+    <p>Something went wrong</p>
+    {% if error %}
+    <pre class="error-details">{{ error }}</pre>
+    {% endif %}
+    <a href="{{ url_for('posts.feed') }}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

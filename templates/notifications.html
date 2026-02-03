@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Notifications - OpenNet{% endblock %}
+
+{% block content %}
+<div class="view-header">
+    <div class="header-title">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="vertical-align: middle; margin-right: 8px;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        Notifications
+    </div>
+</div>
+
+<div style="padding: 16px;">
+    <!-- Pending Follow Requests -->
+    {% if pending_requests %}
+    <div style="margin-bottom: 24px;">
+        <h2 style="color: var(--text-primary); font-size: 18px; font-weight: bold; margin-bottom: 16px;">Follow Requests</h2>
+        {% for req in pending_requests %}
+        <div class="post" style="padding: 16px;">
+            <img src="{{ url_for('upload.serve_upload', filename=req.requester_pic) }}" 
+                 class="create-avatar"
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+            <div class="post-content" style="flex: 1;">
+                <a href="{{ url_for('profile.view_profile', id=req.requester_id) }}" style="text-decoration: none;">
+                    <span class="display-name">{{ req.requester_name }}</span>
+                    <span class="username">@{{ req.requester_name }}</span>
+                </a>
+                <p style="color: var(--text-secondary); margin-top: 4px; font-size: 14px;">wants to follow you</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <form method="POST" action="{{ url_for('social.accept_request', request_id=req.id) }}">
+                    <button type="submit" class="mini-post-btn">Accept</button>
+                </form>
+                <form method="POST" action="{{ url_for('social.reject_request', request_id=req.id) }}">
+                    <button type="submit" style="padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 9999px; background: transparent; color: var(--text-primary); font-size: 14px; font-weight: bold; cursor: pointer;">Decline</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- All Activity -->
+    <div>
+        <h2 style="color: var(--text-primary); font-size: 18px; font-weight: bold; margin-bottom: 16px;">Recent Activity</h2>
+        {% for notif in notifications %}
+        <div class="post" style="padding: 16px; {% if not notif.read %}background: rgba(29, 155, 240, 0.1);{% endif %}">
+            <img src="{{ url_for('upload.serve_upload', filename=notif.from_profile_pic) }}" 
+                 class="create-avatar"
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/default_avatar.png') }}'">
+            <div class="post-content">
+                <a href="{{ url_for('profile.view_profile', id=notif.from_user_id) }}" style="text-decoration: none;">
+                    <span class="display-name">{{ notif.from_username }}</span>
+                </a>
+                {% if notif.type == 'follow' %}
+                <span style="color: var(--text-secondary);"> started following you</span>
+                {% elif notif.type == 'follow_request' %}
+                <span style="color: var(--text-secondary);"> requested to follow you</span>
+                {% elif notif.type == 'follow_accepted' %}
+                <span style="color: var(--text-secondary);"> accepted your follow request</span>
+                {% elif notif.type == 'like' %}
+                <span style="color: var(--text-secondary);"> liked your post</span>
+                {% elif notif.type == 'comment' %}
+                <span style="color: var(--text-secondary);"> commented on your post</span>
+                {% else %}
+                <span style="color: var(--text-secondary);"> interacted with you</span>
+                {% endif %}
+                <p style="color: var(--text-secondary); font-size: 12px; margin-top: 4px;">
+                    {{ notif.created_at.split()[0] if notif.created_at else '' }}
+                </p>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" style="opacity: 0.5; margin-bottom: 16px;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            <p>No notifications yet</p>
+            <p style="font-size: 14px; margin-top: 8px;">When someone interacts with you, you'll see it here.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
