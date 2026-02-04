@@ -724,3 +724,375 @@ a {
     height: 18px;
     fill: var(--text-primary);
 }
+
+/* ========================================
+   MOBILE BOTTOM NAVIGATION
+   ======================================== */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+    padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    z-index: 1000;
+}
+
+.mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 10px;
+    gap: 4px;
+}
+
+.mobile-nav-item.active {
+    color: var(--text-primary);
+}
+
+.mobile-nav-item svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* ========================================
+   TABLET BREAKPOINT (768px - 1024px)
+   ======================================== */
+@media (max-width: 1024px) {
+    .sidebar-right {
+        display: none;
+    }
+
+    .main-content {
+        flex: 1;
+        max-width: 100%;
+        width: auto;
+    }
+
+    .sidebar-left {
+        width: 88px;
+        padding: 0 8px;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 12px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .nav-item span,
+    .nav-item:not(.nav-logo)::after {
+        display: none;
+    }
+
+    .nav-item svg {
+        margin-right: 0;
+    }
+
+    .nav-post-btn {
+        width: 50px;
+        height: 50px;
+        padding: 0;
+        font-size: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-post-btn::before {
+        content: '+';
+        font-size: 24px;
+    }
+
+    .nav-user-profile {
+        justify-content: center;
+        padding: 8px;
+    }
+
+    .user-info-mini {
+        display: none;
+    }
+
+    .user-avatar-small {
+        margin-right: 0;
+    }
+}
+
+/* ========================================
+   MOBILE BREAKPOINT (<768px)
+   ======================================== */
+@media (max-width: 768px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar-left {
+        display: none;
+    }
+
+    .sidebar-right {
+        display: none;
+    }
+
+    .main-content {
+        width: 100%;
+        max-width: 100%;
+        border-right: none;
+        padding-bottom: 80px;
+        /* Space for mobile nav */
+    }
+
+    .mobile-nav {
+        display: block;
+    }
+
+    /* Header adjustments */
+    .view-header {
+        padding: 12px 16px;
+    }
+
+    .header-title {
+        padding: 12px 16px 0 16px;
+        font-size: 18px;
+    }
+
+    /* Post adjustments */
+    .post {
+        padding: 12px;
+    }
+
+    .post-text {
+        font-size: 16px;
+    }
+
+    .create-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .post-input {
+        font-size: 16px;
+    }
+
+    /* Tabs */
+    .feed-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+        white-space: nowrap;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    /* Forms */
+    .widget-card {
+        margin: 12px;
+        padding: 16px;
+    }
+
+    /* Profile adjustments */
+    .profile-header {
+        padding: 12px;
+    }
+
+    .profile-stats {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    /* Action buttons */
+    .action-item span {
+        display: none;
+    }
+
+    .post-actions {
+        justify-content: space-around;
+        max-width: 100%;
+    }
+
+    /* Tool icons */
+    .tool-icons {
+        gap: 8px;
+    }
+
+    .tool-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Mini post button */
+    .mini-post-btn {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+
+    /* Dropdown */
+    .post-dropdown {
+        width: 180px;
+    }
+
+    /* User meta */
+    .user-meta {
+        flex-wrap: wrap;
+    }
+
+    .display-name {
+        font-size: 14px;
+    }
+
+    .username,
+    .time {
+        font-size: 13px;
+    }
+}
+
+/* ========================================
+   SMALL MOBILE (<480px)
+   ======================================== */
+@media (max-width: 480px) {
+    .create-post-area {
+        padding: 12px;
+    }
+
+    .post-input {
+        font-size: 15px;
+        min-height: 40px;
+    }
+
+    .post-text {
+        font-size: 15px;
+    }
+
+    .header-title {
+        font-size: 16px;
+    }
+
+    .tab {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+
+    /* Auth pages */
+    .auth-container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .auth-title {
+        font-size: 24px;
+    }
+
+    .auth-input {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .auth-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .social-btn {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+/* ========================================
+   AUTH PAGES RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+    .auth-wrapper {
+        padding: 20px;
+    }
+
+    .auth-container {
+        padding: 24px;
+        max-width: 100%;
+        margin: 0 16px;
+    }
+
+    .auth-title {
+        font-size: 28px;
+    }
+
+    .social-btns {
+        gap: 12px;
+    }
+
+    .social-btn {
+        padding: 12px;
+    }
+}
+
+/* ========================================
+   AUTH SPLIT-SCREEN RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+    .auth-split-screen {
+        flex-direction: column;
+    }
+
+    .split-left {
+        display: none;
+    }
+
+    .split-right {
+        width: 100%;
+        min-height: 100vh;
+        padding: 40px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .split-right {
+        padding: 24px 16px;
+    }
+
+    .auth-header h2 {
+        font-size: 24px;
+    }
+
+    .auth-header p {
+        font-size: 14px;
+    }
+
+    .social-btns {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .social-btn {
+        width: 100%;
+    }
+
+    .auth-input {
+        padding: 14px 12px;
+    }
+
+    .auth-submit-btn {
+        padding: 16px;
+    }
+
+    .auth-actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+}

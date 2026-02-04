@@ -197,6 +197,42 @@
 .send-btn svg {
     fill: white;
 }
+
+/* Mobile responsive for chat */
+@media (max-width: 768px) {
+    .chat-container {
+        height: calc(100vh - 60px); /* Adjust for mobile nav */
+        padding-bottom: 80px;
+    }
+
+    .message {
+        max-width: 85%;
+    }
+
+    .message-bubble {
+        padding: 8px 12px;
+    }
+
+    .message-text {
+        font-size: 14px;
+    }
+
+    .messages-container {
+        padding: 12px;
+    }
+
+    .chat-header {
+        padding: 10px 12px;
+    }
+
+    .message-input-container {
+        padding: 10px 12px;
+        position: fixed;
+        bottom: 60px;
+        left: 0;
+        right: 0;
+    }
+}
 </style>
 
 <!-- SocketIO Client -->
